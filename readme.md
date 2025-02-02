@@ -1,5 +1,3 @@
-Here’s a detailed `README.md` for your project, with information on the current state of the project and future enhancements such as incorporating models like SVM, CNN, etc.
-
 ---
 
 # Drug-Drug Interaction Prediction
@@ -105,19 +103,23 @@ The script will output the following:
 Here’s how the repository is organized:
 
 ```
-/ddi-prediction
-│
-├── /data
-│   ├── cleaned.csv             # Cleaned dataset used for model training
-│   └── raw_drug.csv            # Raw drug interaction data
-│   └── raw_properties.xlsx     # Raw drug properties data
-│
-├── /notebooks
-│   └── data_analysis.ipynb     # Jupyter notebook for exploratory data analysis (EDA)
-│
-├── main.py                     # Main Python script that runs the model
-├── requirements.txt            # List of required libraries
-└── README.md                   # Project documentation
+dataset/
+│── merged_data/
+│   └── merged_data.csv
+│── raw_data/
+│   ├── raw_drug.csv
+│   └── raw_properties.xlsx
+│── train_data/
+│   └── train_set.csv
+│── featuring_data/
+│   └── ML1.ipynb
+model/
+│── data/
+│── ddi_notebook.ipynb
+│── main.py
+│── readme.md
+│── requirements.txt
+
 ```
 
 - **data**: Contains datasets (both raw and cleaned).
