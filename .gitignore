@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Model artifacts (large files — trained on deploy)
+# Uncomment below if NOT committing the model to git:
+# backend/model_artifacts/rf_model.pkl
+# backend/model_artifacts/scaler.pkl
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Node / React
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# PostgreSQL portable (local only)
+pgsql/
+pg.log
+
+# Downloaded installers
+*.msi

@@ -1,178 +1,152 @@
----
+# DDIPredict — Full-Stack Drug Interaction Predictor
 
-# Drug-Drug Interaction Prediction
+<div align="center">
+  <h3>🔬 AI-Powered Drug-Drug Interaction Prediction</h3>
+  <p>Predict Minor / Moderate / Major drug interaction severity using Machine Learning</p>
 
-This project aims to predict the severity of drug-drug interactions based on the molecular properties of drugs. Drug interactions can lead to adverse effects in patients, and predicting these interactions can help in avoiding dangerous drug combinations. The primary goal of this project is to build a machine learning model that can accurately predict the potential severity of drug interactions.
-
-## Features:
-
-- **Data Cleaning:** The raw dataset is preprocessed to handle missing values, duplicates, and normalization of features.
-- **Modeling:** The project uses a Random Forest Classifier to predict drug interaction levels based on drug properties.
-- **Visualization:** Visualizations such as feature importance and the distribution of interaction levels are generated to understand the underlying patterns.
-- **Future Enhancements:** Models like SVM, CNN, and others will be integrated soon to further improve prediction accuracy.
-
----
-
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Project Structure](#project-structure)
-6. [Future Enhancements](#future-enhancements)
-7. [Acknowledgments](#acknowledgments)
-8. [License](#license)
+  <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python" />
+  <img src="https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql" />
+  <img src="https://img.shields.io/badge/scikit--learn-1.4-F7931E?logo=scikitlearn" />
+  <img src="https://img.shields.io/badge/Accuracy-88.9%25-success" />
+</div>
 
 ---
 
-## Introduction
+## 🌟 What is DDIPredict?
 
-Drug-drug interactions (DDIs) occur when two or more drugs interact and cause an adverse reaction in a patient. Understanding these interactions can improve patient safety and reduce the occurrence of side effects. This project uses machine learning techniques to predict DDIs based on drug properties such as molecular weight, solubility, and other related features.
+DDIPredict is a production-grade full-stack web application that predicts the **severity of drug-drug interactions (DDIs)** based on the molecular properties of two drugs. It uses a trained **Random Forest Classifier** to classify interactions as:
 
-Currently, a **Random Forest Classifier** is used to predict the severity of these interactions, and visualizations such as feature importance plots are generated to provide insights into the model's behavior.
+| Severity | Description |
+|---|---|
+| 🟢 **Minor** | Generally well-tolerated. Monitor as precaution. |
+| 🟡 **Moderate** | May require dosage adjustment or monitoring. Consult a doctor. |
+| 🔴 **Major** | Potentially life-threatening. Generally contraindicated. |
 
 ---
 
-## Getting Started
+## 🏗️ Architecture
 
-This section will guide you through setting up the project locally on your machine and running it.
+```
+┌─────────────────────────────┐
+│   React 18 + Vite Frontend  │  ← Port 5173
+│   Recharts · Framer Motion  │
+└────────────┬────────────────┘
+             │ REST API
+┌────────────▼────────────────┐
+│   FastAPI Backend (Python)  │  ← Port 8000
+│   SQLAlchemy · asyncpg      │
+│   scikit-learn RF Model     │
+└────────────┬────────────────┘
+             │ async ORM
+┌────────────▼────────────────┐
+│       PostgreSQL 16         │  ← Port 5432
+│   drugs · interactions      │
+│   predictions_log           │
+└─────────────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [uv](https://github.com/astral-sh/uv) (Python package manager)
+- [Node.js 22+](https://nodejs.org/)
 
-Ensure you have Python 3.x installed on your machine along with `pip` for package management.
-
-### Installation
-
-Clone the repository to your local machine:
-
+### 1. Start PostgreSQL
 ```bash
-git clone https://github.com/yourusername/ddi-prediction.git
-cd ddi-prediction
+docker-compose up -d
 ```
 
-Create a virtual environment and activate it:
-
+### 2. Setup Backend
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+cd backend
+uv sync
+uv run python app/ml/train.py          # Train and save model
+uv run python scripts/seed_db.py       # Seed database from CSV
+uv run uvicorn app.main:app --reload   # Start API on port 8000
 ```
 
-Install the required dependencies:
-
+### 3. Start Frontend
 ```bash
-pip install -r requirements.txt
+cd frontend
+npm install
+npm run dev                            # Start React app on port 5173
+```
+
+Visit **http://localhost:5173** 🎉
+
+---
+
+## 📊 Dataset
+
+- **Source:** DDInter Drug-Drug Interaction Database (Kaggle)
+- **Pairs:** 27,449 drug interaction pairs
+- **Features:** Molecular Weight, XLogP, Exact Mass, TPSA (for both drugs = 10 features)
+- **Classes:** Minor (594) · Moderate (8,088) · Major (1,317)
+
+---
+
+## 🧠 Model Performance
+
+| Metric | Value |
+|---|---|
+| Test Accuracy | **88.91%** |
+| CV Accuracy (5-fold) | **~88%** |
+| Algorithm | Random Forest (200 trees) |
+| Preprocessing | StandardScaler + balanced class weights |
+
+---
+
+## 📁 Project Structure
+
+```
+DDI/
+├── backend/
+│   ├── app/
+│   │   ├── main.py          # FastAPI app
+│   │   ├── config.py        # Settings
+│   │   ├── database.py      # SQLAlchemy async engine
+│   │   ├── models/          # ORM models
+│   │   ├── schemas/         # Pydantic schemas
+│   │   ├── api/routes/      # API endpoints
+│   │   └── ml/              # Training + inference
+│   ├── scripts/seed_db.py   # DB seeder
+│   └── pyproject.toml
+├── frontend/
+│   ├── src/
+│   │   ├── pages/           # Home, Predictor, DrugBrowser, Analytics, About
+│   │   ├── components/      # Navbar, Footer, DrugSearchInput, SeverityBadge
+│   │   └── api.js           # Centralized API client
+│   └── vite.config.js
+├── dataset/                 # Raw + processed data
+├── docker-compose.yml       # PostgreSQL container
+└── README.md
 ```
 
 ---
 
-## Usage
+## 🔌 API Endpoints
 
-Once the dependencies are installed, you can run the `main.py` script to start the model training and evaluation.
-
-### Running the Model
-
-To run the model and generate predictions, execute the following command:
-
-```bash
-python main.py
-```
-
-This will:
-
-1. **Load and clean the data**: The data is preprocessed, and any missing values or duplicates are removed.
-2. **Train the model**: A Random Forest Classifier is trained to predict drug interaction levels.
-3. **Evaluate the model**: The script will display the accuracy score and a classification report.
-4. **Visualize results**: It will generate visualizations, including:
-   - **Feature Importance**: Bar plot showing the most important features used by the model.
-   - **Interaction Levels**: Distribution of different interaction levels (e.g., severe, moderate, or no interaction).
-
-### Expected Output
-
-The script will output the following:
-
-- Accuracy of the Random Forest model.
-- A classification report with precision, recall, and F1 scores for each interaction level.
-- A feature importance plot to see how much each drug property contributes to the prediction.
-- A count plot of the interaction levels showing how the data is distributed.
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/predict` | Predict DDI severity |
+| `GET` | `/api/drugs` | List/search drugs |
+| `GET` | `/api/drugs/search?q=` | Autocomplete |
+| `GET` | `/api/drugs/{name}` | Drug detail + interactions |
+| `GET` | `/api/history` | Recent predictions |
+| `GET` | `/api/stats` | Dataset + model stats |
+| `GET` | `/docs` | Interactive API docs (Swagger) |
 
 ---
 
-## Project Structure
+## 📄 License
 
-Here’s how the repository is organized:
-
-```
-dataset/
-│── merged_data/
-│   └── merged_data.csv
-│── raw_data/
-│   ├── raw_drug.csv
-│   └── raw_properties.xlsx
-│── train_data/
-│   └── train_set.csv
-│── featuring_data/
-│   └── ML1.ipynb
-model/
-│── data/
-│── ddi_notebook.ipynb
-│── main.py
-│── readme.md
-│── requirements.txt
-
-```
-
-- **data**: Contains datasets (both raw and cleaned).
-- **notebooks**: Contains Jupyter notebooks used for data analysis and exploration.
-- **main.py**: Main script for training the model, evaluating it, and visualizing results.
-- **requirements.txt**: A list of Python libraries needed to run the project.
+MIT License — free to use, modify, and deploy.
 
 ---
 
-## Future Enhancements
-
-### 1. **SVM (Support Vector Machine) Classifier**
-
-Support Vector Machines will be integrated into the project to compare performance with the Random Forest Classifier. The goal is to understand if SVM provides a better decision boundary for drug interactions.
-
-### 2. **Convolutional Neural Networks (CNNs)**
-
-We are planning to experiment with CNNs for feature extraction from drug property data. This will be a significant step in advancing the model's capability by using deep learning techniques to process structured data.
-
-### 3. **Hyperparameter Tuning**
-
-For better performance, hyperparameter tuning using techniques like Grid Search and Randomized Search will be applied to optimize the model parameters.
-
-### 4. **Model Evaluation**
-
-More evaluation metrics such as confusion matrices and ROC curves will be added to assess the performance more comprehensively.
-
-### 5. **Deployment**
-
-Eventually, we plan to deploy the model as a web application where healthcare professionals can input drug combinations to check potential interactions.
-
-### 6. **Additional Models**
-
-- **Logistic Regression** and **Decision Trees** will be explored for comparison purposes.
-- **XGBoost** and **LightGBM** are potential alternatives to Random Forest that will be tested for better prediction power.
-
----
-
-## Acknowledgments
-
-We would like to acknowledge the developers of the libraries used in this project, including:
-
-- **Scikit-learn** for machine learning tools and algorithms.
-- **Pandas** for data manipulation.
-- **Matplotlib** and **Seaborn** for visualization.
-- **Jupyter** for exploratory data analysis.
-
----
-
-### Conclusion
-
-This project demonstrates the potential of machine learning in predicting drug-drug interactions and improving patient safety. With future enhancements like the addition of new models and deployment of the system, this can be a valuable tool for healthcare providers to prevent adverse drug reactions.
-
----
-
-You can adjust the GitHub repository links or any other project-specific details in the `README.md` based on your actual project. Let me know if you need further adjustments!
+*Built with ❤️ using FastAPI, React, scikit-learn, and PostgreSQL*

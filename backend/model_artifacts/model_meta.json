@@ -1,0 +1,100 @@
+{
+  "accuracy": 0.8681238615664845,
+  "cv_accuracy_mean": 0.8641113722726128,
+  "cv_accuracy_std": 0.004877299768185225,
+  "roc_auc": 0.9321174962439234,
+  "classification_report": {
+    "Minor": {
+      "precision": 0.6229508196721312,
+      "recall": 0.6930091185410334,
+      "f1-score": 0.6561151079136691,
+      "support": 329.0
+    },
+    "Moderate": {
+      "precision": 0.9481890141520748,
+      "recall": 0.8939393939393939,
+      "f1-score": 0.9202653940169945,
+      "support": 4422.0
+    },
+    "Major": {
+      "precision": 0.612565445026178,
+      "recall": 0.7916102841677943,
+      "f1-score": 0.6906729634002361,
+      "support": 739.0
+    },
+    "accuracy": 0.8681238615664845,
+    "macro avg": {
+      "precision": 0.7279017596167946,
+      "recall": 0.792852932216074,
+      "f1-score": 0.7556844884436332,
+      "support": 5490.0
+    },
+    "weighted avg": {
+      "precision": 0.8835206747043626,
+      "recall": 0.8681238615664845,
+      "f1-score": 0.8735305578869803,
+      "support": 5490.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      228,
+      82,
+      19
+    ],
+    [
+      118,
+      3953,
+      351
+    ],
+    [
+      20,
+      134,
+      585
+    ]
+  ],
+  "confusion_matrix_labels": [
+    "Minor",
+    "Moderate",
+    "Major"
+  ],
+  "feature_importances": {
+    "Drug_A_ID": 0.11796743236549577,
+    "Drug_A_MolecularWeight": 0.0824396913311166,
+    "Drug_A_XLogP": 0.09300616882476533,
+    "Drug_A_ExactMass": 0.08416396054587214,
+    "Drug_A_TPSA": 0.10722923325472848,
+    "Drug_B_ID": 0.12047093865677232,
+    "Drug_B_MolecularWeight": 0.0963575220375241,
+    "Drug_B_XLogP": 0.09561839598470992,
+    "Drug_B_ExactMass": 0.09170525917340923,
+    "Drug_B_TPSA": 0.11104139782560624
+  },
+  "features": [
+    "Drug_A_ID",
+    "Drug_A_MolecularWeight",
+    "Drug_A_XLogP",
+    "Drug_A_ExactMass",
+    "Drug_A_TPSA",
+    "Drug_B_ID",
+    "Drug_B_MolecularWeight",
+    "Drug_B_XLogP",
+    "Drug_B_ExactMass",
+    "Drug_B_TPSA"
+  ],
+  "target": "Level_ID",
+  "label_map": {
+    "1": "Minor",
+    "2": "Moderate",
+    "3": "Major"
+  },
+  "n_estimators": 200,
+  "train_size": 21959,
+  "test_size": 5490,
+  "total_samples": 27449,
+  "class_distribution": {
+    "Minor": 1644,
+    "Moderate": 22110,
+    "Major": 3695
+  }
+}
