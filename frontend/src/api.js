@@ -1,9 +1,14 @@
 import axios from 'axios'
 
-// In production (Vercel), VITE_API_URL points to Render.com backend
-// In development, falls back to localhost:8000
+// In production, VITE_API_URL can point to the backend root or /api.
+// In development, it falls back to localhost:8000.
+const normalizeApiBaseUrl = (url) => {
+  const trimmed = url.replace(/\/+$/, '')
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL: normalizeApiBaseUrl(import.meta.env.VITE_API_URL || 'http://localhost:8000'),
   timeout: 20000,
 })
 

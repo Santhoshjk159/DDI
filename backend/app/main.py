@@ -48,7 +48,7 @@ app.add_middleware(
 app.include_router(api_router)
 
 
-@app.get("/", tags=["Health"])
+@app.api_route("/", methods=["GET", "HEAD"], tags=["Health"])
 async def root():
     return {
         "status": "ok",
