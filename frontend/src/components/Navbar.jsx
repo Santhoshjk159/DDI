@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Activity, Menu, X } from 'lucide-react'
-import ddiLogo from '../assets/icon.png'
 
 const NAV_LINKS = [
   { to: '/',          label: 'Dashboard' },
@@ -24,7 +23,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="navbar-logo" aria-label="DDIPredict home">
           <img
-            src={ddiLogo}
+            src="/favicon.png"
             alt="DDI Prediction Platform Logo"
             aria-hidden="true"
             style={{

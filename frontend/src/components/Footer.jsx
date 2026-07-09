@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
-import ddiLogo from '../assets/icon.png'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -13,7 +12,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="footer-brand-name">
-              <img src={ddiLogo} alt="" aria-hidden="true" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
+              <img src="/favicon.png" alt="" aria-hidden="true" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
               DDIPredict Platform
             </div>
             <p className="footer-brand-desc">
