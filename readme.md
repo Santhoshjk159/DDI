@@ -1,152 +1,176 @@
-# DDIPredict — Full-Stack Drug Interaction Predictor
+# DDI Predict
 
 <div align="center">
-  <h3>🔬 AI-Powered Drug-Drug Interaction Prediction</h3>
-  <p>Predict Minor / Moderate / Major drug interaction severity using Machine Learning</p>
+  <img src="frontend/public/favicon.png" alt="DDI Predict logo" width="128" height="128" />
 
-  <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python" />
-  <img src="https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi" />
-  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react" />
-  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql" />
-  <img src="https://img.shields.io/badge/scikit--learn-1.4-F7931E?logo=scikitlearn" />
-  <img src="https://img.shields.io/badge/Accuracy-88.9%25-success" />
+  <h1>DDI Predict</h1>
+  <p><strong>Drug-Drug Interaction Severity Prediction, made simple enough to trust and fast enough to use.</strong></p>
+
+  <p>
+    A full-stack machine learning app that helps people explore drug pairs, predict interaction severity, and understand the result with context.
+  </p>
+
+  <p>
+    <a href="https://ddi-predict.vercel.app/">Live Frontend</a> ·
+    <a href="https://ddi-predict-api.onrender.com/">Backend</a> ·
+    <a href="https://ddi-predict-api.onrender.com/docs">API Docs</a>
+  </p>
 </div>
 
 ---
 
-## 🌟 What is DDIPredict?
+## What this project is
 
-DDIPredict is a production-grade full-stack web application that predicts the **severity of drug-drug interactions (DDIs)** based on the molecular properties of two drugs. It uses a trained **Random Forest Classifier** to classify interactions as:
+DDI Predict is built around a simple idea: when two drugs are taken together, the interaction severity should be easy to check, explain, and revisit.
 
-| Severity | Description |
-|---|---|
-| 🟢 **Minor** | Generally well-tolerated. Monitor as precaution. |
-| 🟡 **Moderate** | May require dosage adjustment or monitoring. Consult a doctor. |
-| 🔴 **Major** | Potentially life-threatening. Generally contraindicated. |
+The app takes two drug names, looks up their molecular properties, and sends them through a trained Random Forest model. The result is returned as one of three severity levels: Minor, Moderate, or Major. Along with the prediction, the app also shows confidence, probability breakdowns, drug details, history, and analytics so the user is not left with a black-box answer.
 
----
+This repository contains the full product: the React frontend, the FastAPI backend, the database layer, the model inference code, and the training artifacts that power the prediction flow.
 
-## 🏗️ Architecture
+## Live deployment
 
+- Frontend: [https://ddi-predict.vercel.app/](https://ddi-predict.vercel.app/)
+- Backend: [https://ddi-predict-api.onrender.com/](https://ddi-predict-api.onrender.com/)
+- API Docs: [https://ddi-predict-api.onrender.com/docs](https://ddi-predict-api.onrender.com/docs)
+
+## Why it exists
+
+The aim is not just prediction. The aim is clarity.
+
+People should be able to:
+
+- search drugs quickly,
+- compare two drug names without friction,
+- see the risk level in plain language,
+- understand the confidence behind the answer,
+- and revisit prior predictions when needed.
+
+That is why the app includes more than a model endpoint. It also includes browsing, analytics, prediction history, and a clean UI with a recognizable icon and visual identity.
+
+## Screens and experience
+
+- Home page for quick entry into the app
+- Predictor page for interaction checks
+- Drug browser for searching and browsing the database
+- Analytics page for dataset and model insights
+- About page for project context
+
+## Tech stack
+
+- Frontend: React, Vite, React Router, Recharts, Framer Motion
+- Backend: FastAPI, SQLAlchemy, asyncpg, Pydantic
+- ML: scikit-learn Random Forest
+- Database: PostgreSQL, with Neon used in production
+- Hosting: Vercel for frontend, Render for backend
+
+## Architecture
+
+```mermaid
+flowchart LR
+  U[User] --> F[Frontend\nVercel]
+  F -->|/api requests| B[Backend\nRender FastAPI]
+  B --> D[(PostgreSQL\nNeon)]
+  B --> M[ML Model\nRandom Forest]
 ```
-┌─────────────────────────────┐
-│   React 18 + Vite Frontend  │  ← Port 5173
-│   Recharts · Framer Motion  │
-└────────────┬────────────────┘
-             │ REST API
-┌────────────▼────────────────┐
-│   FastAPI Backend (Python)  │  ← Port 8000
-│   SQLAlchemy · asyncpg      │
-│   scikit-learn RF Model     │
-└────────────┬────────────────┘
-             │ async ORM
-┌────────────▼────────────────┐
-│       PostgreSQL 16         │  ← Port 5432
-│   drugs · interactions      │
-│   predictions_log           │
-└─────────────────────────────┘
-```
 
----
+## Features
 
-## 🚀 Quick Start
+- Two-drug interaction prediction
+- Severity classification with Minor, Moderate, Major outputs
+- Probability and confidence breakdowns
+- Drug search, browsing, and detail views
+- Prediction history
+- Dataset and model analytics
+- Production deployment with CORS support
+- Branded UI using the project icon
+
+## How it works
+
+1. The frontend collects two drug names.
+2. The backend resolves those names against the drug database.
+3. The app extracts the molecular features needed by the model.
+4. The trained model predicts severity and confidence.
+5. The result is stored, returned, and shown in the UI.
+
+## Local development
 
 ### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [uv](https://github.com/astral-sh/uv) (Python package manager)
-- [Node.js 22+](https://nodejs.org/)
 
-### 1. Start PostgreSQL
-```bash
-docker-compose up -d
-```
+- Node.js 22+
+- Python 3.11+
+- uv
+- PostgreSQL, or Docker Desktop if you want to run the database locally
 
-### 2. Setup Backend
+### Backend
+
 ```bash
 cd backend
 uv sync
-uv run python app/ml/train.py          # Train and save model
-uv run python scripts/seed_db.py       # Seed database from CSV
-uv run uvicorn app.main:app --reload   # Start API on port 8000
+uv run python scripts/seed_db.py
+uv run uvicorn app.main:app --reload --port 8000
 ```
 
-### 3. Start Frontend
+### Frontend
+
 ```bash
 cd frontend
 npm install
-npm run dev                            # Start React app on port 5173
+npm run dev
 ```
 
-Visit **http://localhost:5173** 🎉
+Then open [http://localhost:5173](http://localhost:5173).
 
----
+## Environment variables
 
-## 📊 Dataset
+### Backend
 
-- **Source:** DDInter Drug-Drug Interaction Database (Kaggle)
-- **Pairs:** 27,449 drug interaction pairs
-- **Features:** Molecular Weight, XLogP, Exact Mass, TPSA (for both drugs = 10 features)
-- **Classes:** Minor (594) · Moderate (8,088) · Major (1,317)
+- `DATABASE_URL` - async database connection string
+- `DATABASE_SYNC_URL` - sync database connection string
+- `CORS_ORIGINS` - comma-separated list of allowed frontend origins
+- `APP_ENV` - set to `production` on Render
+- `APP_SECRET_KEY` - optional, currently has a default fallback
 
----
+### Frontend
 
-## 🧠 Model Performance
+- `VITE_API_URL` - backend base URL, use `https://ddi-predict-api.onrender.com/api`
 
-| Metric | Value |
-|---|---|
-| Test Accuracy | **88.91%** |
-| CV Accuracy (5-fold) | **~88%** |
-| Algorithm | Random Forest (200 trees) |
-| Preprocessing | StandardScaler + balanced class weights |
+## API endpoints
 
----
+- `GET /` - service status
+- `GET /health` - health check
+- `POST /api/predict` - predict interaction severity
+- `GET /api/drugs` - list and search drugs
+- `GET /api/drugs/search?q=` - autocomplete drug search
+- `GET /api/drugs/{name}` - drug detail view
+- `GET /api/history` - recent predictions
+- `GET /api/stats` - dataset and model statistics
 
-## 📁 Project Structure
+## Dataset and model
 
-```
-DDI/
-├── backend/
-│   ├── app/
-│   │   ├── main.py          # FastAPI app
-│   │   ├── config.py        # Settings
-│   │   ├── database.py      # SQLAlchemy async engine
-│   │   ├── models/          # ORM models
-│   │   ├── schemas/         # Pydantic schemas
-│   │   ├── api/routes/      # API endpoints
-│   │   └── ml/              # Training + inference
-│   ├── scripts/seed_db.py   # DB seeder
-│   └── pyproject.toml
-├── frontend/
-│   ├── src/
-│   │   ├── pages/           # Home, Predictor, DrugBrowser, Analytics, About
-│   │   ├── components/      # Navbar, Footer, DrugSearchInput, SeverityBadge
-│   │   └── api.js           # Centralized API client
-│   └── vite.config.js
-├── dataset/                 # Raw + processed data
-├── docker-compose.yml       # PostgreSQL container
-└── README.md
-```
+- Dataset source: DDInter Drug-Drug Interaction Database
+- Model type: Random Forest classifier
+- Severity classes: Minor, Moderate, Major
+- Model metadata and artifacts are stored under `backend/model_artifacts/`
 
----
+## Repository layout
 
-## 🔌 API Endpoints
+- `backend/` - FastAPI app, database layer, and model inference code
+- `frontend/` - Vite React app
+- `dataset/` - raw and processed datasets
+- `render.yaml` - Render deployment config
+- `docker-compose.yml` - local PostgreSQL setup
+- `DDI.ipynb` - notebook kept for exploration and analysis
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/predict` | Predict DDI severity |
-| `GET` | `/api/drugs` | List/search drugs |
-| `GET` | `/api/drugs/search?q=` | Autocomplete |
-| `GET` | `/api/drugs/{name}` | Drug detail + interactions |
-| `GET` | `/api/history` | Recent predictions |
-| `GET` | `/api/stats` | Dataset + model stats |
-| `GET` | `/docs` | Interactive API docs (Swagger) |
+## Deployment notes
 
----
+- The backend root URL returns a friendly status JSON for quick checks.
+- The frontend should always point to the backend `/api` path.
+- CORS is configured to work with Render and Vercel domains.
 
-## 📄 License
+## Visual identity
 
-MIT License — free to use, modify, and deploy.
+The icon in this repository is part of the project identity and is used to make the app feel like a finished product rather than just a demo. It is also the image shown at the top of this README.
 
----
+## License
 
-*Built with ❤️ using FastAPI, React, scikit-learn, and PostgreSQL*
+MIT
