@@ -39,7 +39,7 @@ def create_db_engine(database_url: str, echo: bool = False):
             pool_pre_ping=True,
             pool_size=10,
             max_overflow=20,
-            connect_args=connect_args if connect_args else None
+            connect_args=connect_args
         )
         
     return create_async_engine(

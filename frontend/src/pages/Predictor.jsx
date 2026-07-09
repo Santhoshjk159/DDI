@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, RotateCcw, AlertCircle, CheckCircle, Clock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  ArrowLeftRight, RotateCcw, FlaskConical, AlertCircle,
+  Clock, CheckCircle2, XCircle, Info, FileText
+} from 'lucide-react'
 import DrugSearchInput from '../components/DrugSearchInput'
 import SeverityBadge from '../components/SeverityBadge'
 import { predictInteraction, getHistory } from '../api'
-import { useEffect } from 'react'
-import {
-  RadarChart, PolarGrid, PolarAngleAxis, Radar,
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
-} from 'recharts'
 
-const SEVERITY_COLORS = { Minor: '#10b981', Moderate: '#f59e0b', Major: '#ef4444' }
+const SEVERITY_COLORS = {
+  Minor:    'var(--color-minor)',
+  Moderate: 'var(--color-moderate)',
+  Major:    'var(--color-major)',
+}
+
+const RECOMMENDATIONS = {
+  Minor:    'Monitor the patient as a routine precaution. No immediate clinical action required unless symptoms develop.',
+  Moderate: 'Dosage adjustment or additional clinical monitoring may be warranted. Consult a pharmacist or prescribing clinician.',
+  Major:    'This combination is generally contraindicated. Seek immediate clinical guidance before concurrent administration.',
+}
 
 function PropertiesTable({ drug }) {
   const rows = [
-    ['Molecular Weight', drug.mol_weight?.toFixed(3) + ' g/mol'],
-    ['XLogP',           drug.xlogp?.toFixed(3)],
-    ['Exact Mass',      drug.exact_mass?.toFixed(5)],
-    ['TPSA',            drug.tpsa?.toFixed(2) + ' Å²'],
+    ['Molecular Weight', drug.mol_weight != null ? drug.mol_weight.toFixed(3) + ' g/mol' : '—'],
+    ['XLogP (Lipophilicity)', drug.xlogp != null ? drug.xlogp.toFixed(3) : '—'],
+    ['Exact Mass', drug.exact_mass != null ? drug.exact_mass.toFixed(5) + ' Da' : '—'],
+    ['TPSA', drug.tpsa != null ? drug.tpsa.toFixed(2) + ' Å²' : '—'],
   ]
   return (
     <div>
-      <p style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
-        {drug.name}
+      <p style={{
+        fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase',
+        letterSpacing: '0.06em', color: 'var(--color-primary)',
+        marginBottom: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.375rem'
+      }}>
+        <FlaskConical size={12} aria-hidden="true" /> {drug.name}
       </p>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+      <table className="data-table">
         <tbody>
           {rows.map(([k, v]) => (
-            <tr key={k} style={{ borderBottom: '1px solid var(--color-border)' }}>
-              <td style={{ padding: '0.5rem 0', color: 'var(--color-text-muted)' }}>{k}</td>
-              <td style={{ padding: '0.5rem 0', textAlign: 'right', fontWeight: 600, fontFamily: 'monospace' }}>{v ?? '—'}</td>
+            <tr key={k}>
+              <td>{k}</td>
+              <td>{v}</td>
             </tr>
           ))}
         </tbody>
@@ -38,17 +50,40 @@ function PropertiesTable({ drug }) {
   )
 }
 
-function HistoryItem({ item }) {
-  const colors = { Minor: 'var(--color-minor)', Moderate: 'var(--color-moderate)', Major: 'var(--color-major)' }
+function HistoryRow({ item }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0', borderBottom: '1px solid var(--color-border)' }}>
-      <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[item.level], flexShrink: 0 }} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '0.82rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {item.drug_a_name} × {item.drug_b_name}
-        </p>
-        <p style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)' }}>{item.level} · {(item.confidence * 100).toFixed(0)}% conf.</p>
+    <tr>
+      <td>
+        <span style={{ fontWeight: 500, fontSize: '0.8125rem' }}>
+          {item.drug_a_name}
+        </span>
+        <span style={{ color: 'var(--color-text-subtle)', margin: '0 4px' }}>×</span>
+        <span style={{ fontWeight: 500, fontSize: '0.8125rem' }}>
+          {item.drug_b_name}
+        </span>
+      </td>
+      <td><SeverityBadge level={item.level} size="sm" /></td>
+      <td style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>
+        {(item.confidence * 100).toFixed(0)}%
+      </td>
+    </tr>
+  )
+}
+
+function ProbabilityRow({ label, value, level }) {
+  const pct = (value * 100).toFixed(1)
+  const colors = { Minor: 'progress-minor', Moderate: 'progress-moderate', Major: 'progress-major' }
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem 0', borderBottom: '1px solid var(--color-border)' }}>
+      <span style={{ width: 80, fontSize: '0.8125rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>{label}</span>
+      <div style={{ flex: 1 }}>
+        <div className="progress-wrap">
+          <div className={`progress-fill ${colors[level]}`} style={{ width: pct + '%' }} />
+        </div>
       </div>
+      <span style={{ width: 44, textAlign: 'right', fontSize: '0.8125rem', fontWeight: 700, fontFamily: 'monospace' }}>
+        {pct}%
+      </span>
     </div>
   )
 }
@@ -60,143 +95,290 @@ export default function Predictor() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [history, setHistory] = useState([])
+  const [predTime, setPredTime] = useState(null)
 
   useEffect(() => {
-    getHistory(10).then(h => setHistory(h.items)).catch(() => {})
+    getHistory(10).then(h => setHistory(h.items || [])).catch(() => {})
   }, [])
 
   const handlePredict = async () => {
-    if (!drugA || !drugB) { setError('Please select both drugs using the search boxes.'); return }
+    if (!drugA || !drugB) { setError('Please select both Drug A and Drug B using the search fields.'); return }
+    if (drugA === drugB)  { setError('Drug A and Drug B cannot be the same compound.'); return }
     setLoading(true); setError(''); setResult(null)
     try {
       const data = await predictInteraction(drugA, drugB)
       setResult(data)
-      // Refresh history
-      getHistory(10).then(h => setHistory(h.items)).catch(() => {})
+      setPredTime(new Date())
+      getHistory(10).then(h => setHistory(h.items || [])).catch(() => {})
     } catch (err) {
-      const msg = err?.response?.data?.detail || 'Prediction failed. Make sure both drugs are in the database.'
+      const msg = err?.response?.data?.detail || 'Prediction failed. Ensure both drugs exist in the database.'
       setError(msg)
     } finally { setLoading(false) }
   }
 
-  const handleReset = () => { setResult(null); setError(''); setDrugA(''); setDrugB('') }
+  const handleSwap = () => {
+    const tmp = drugA; setDrugA(drugB); setDrugB(tmp)
+    setResult(null); setError('')
+  }
 
-  const probData = result ? [
-    { name: 'Minor',    value: +(result.probabilities.Minor * 100).toFixed(1)    },
-    { name: 'Moderate', value: +(result.probabilities.Moderate * 100).toFixed(1) },
-    { name: 'Major',    value: +(result.probabilities.Major * 100).toFixed(1)    },
-  ] : []
+  const handleReset = () => {
+    setResult(null); setError(''); setDrugA(''); setDrugB(''); setPredTime(null)
+  }
 
   return (
-    <div style={{ paddingTop: 80 }}>
-      <div className="container" style={{ padding: '3rem 1.5rem', maxWidth: 1200 }}>
-        <div style={{ marginBottom: '2.5rem' }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', marginBottom: '0.5rem' }}>
-            DDI <span className="gradient-text">Interaction Predictor</span>
-          </h1>
-          <p style={{ color: 'var(--color-text-muted)' }}>
-            Search for two drugs to predict their interaction severity using our trained ML model.
-          </p>
-        </div>
+    <div style={{ paddingTop: 'var(--nav-height)' }}>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem', alignItems: 'start' }}>
-          {/* Main panel */}
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="page-header-inner">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
+            <Link to="/">Dashboard</Link>
+            <span className="breadcrumb-sep" aria-hidden="true">/</span>
+            <span>Prediction Tool</span>
+          </nav>
+          <h1>Drug-Drug Interaction Predictor</h1>
+          <p>Select two drugs to generate an ML-based interaction severity assessment.</p>
+        </div>
+      </div>
+
+      <div className="container" style={{ padding: '0 2rem 3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem', alignItems: 'start' }}>
+
+          {/* Left — Main panel */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {/* Input card */}
+
+            {/* Drug Selection */}
             <div className="card">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                <DrugSearchInput label="Drug A" value={drugA} onChange={setDrugA} placeholder="e.g. Abacavir" />
-                <DrugSearchInput label="Drug B" value={drugB} onChange={setDrugB} placeholder="e.g. Naltrexone" />
+              <div className="card-header" style={{ marginBottom: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.9375rem', fontWeight: 700 }}>Drug Selection</h2>
+                <span className="tag">
+                  <FlaskConical size={10} aria-hidden="true" /> Step 1 of 2
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <DrugSearchInput
+                  label="Drug A (Primary)"
+                  value={drugA}
+                  onChange={setDrugA}
+                  placeholder="e.g. Aspirin"
+                  id="drug-a-input"
+                />
+
+                {/* Swap divider */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleSwap}
+                    title="Swap Drug A and Drug B"
+                    aria-label="Swap Drug A and Drug B"
+                    style={{ borderRadius: 20, padding: '0.3125rem 0.75rem', gap: '0.375rem' }}
+                  >
+                    <ArrowLeftRight size={13} />
+                    <span style={{ fontSize: '0.75rem' }}>Swap</span>
+                  </button>
+                  <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+                </div>
+
+                <DrugSearchInput
+                  label="Drug B (Interacting)"
+                  value={drugB}
+                  onChange={setDrugB}
+                  placeholder="e.g. Warfarin"
+                  id="drug-b-input"
+                />
               </div>
 
               {error && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 'var(--radius-md)', marginBottom: '1rem', color: '#ef4444', fontSize: '0.88rem' }}>
-                  <AlertCircle size={16} /> {error}
+                <div className="alert alert-error" style={{ marginTop: '1rem' }} role="alert">
+                  <AlertCircle size={16} aria-hidden="true" style={{ flexShrink: 0 }} />
+                  <span>{error}</span>
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button className="btn btn-primary" style={{ flex: 1 }} onClick={handlePredict} disabled={loading || !drugA || !drugB}>
-                  {loading ? <><div className="spinner" /> Analyzing...</> : <><ArrowRight size={18} /> Predict Interaction</>}
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.25rem' }}>
+                <button
+                  id="predict-btn"
+                  className="btn btn-primary"
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  onClick={handlePredict}
+                  disabled={loading || !drugA || !drugB}
+                  aria-busy={loading}
+                >
+                  {loading
+                    ? <><div className="spinner" aria-hidden="true" /> Analyzing interaction...</>
+                    : <><FlaskConical size={15} aria-hidden="true" /> Generate Interaction Report</>
+                  }
                 </button>
-                {result && (
-                  <button className="btn btn-secondary" onClick={handleReset}><RotateCcw size={16} /> Reset</button>
+                {(drugA || drugB || result) && (
+                  <button className="btn btn-secondary" onClick={handleReset} aria-label="Clear all fields">
+                    <RotateCcw size={14} /> Clear
+                  </button>
                 )}
               </div>
             </div>
 
-            {/* Result */}
-            <AnimatePresence>
-              {result && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-                  {/* Severity header */}
-                  <div className="card" style={{
-                    background: result.level === 'Major' ? 'rgba(239,68,68,0.06)' : result.level === 'Moderate' ? 'rgba(245,158,11,0.06)' : 'rgba(16,185,129,0.06)',
-                    borderColor: SEVERITY_COLORS[result.level] + '40',
-                    marginBottom: '1rem',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.4rem' }}>
-                          {result.drug_a} × {result.drug_b}
-                        </p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                          <SeverityBadge level={result.level} size="lg" />
-                          <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                            <strong style={{ color: SEVERITY_COLORS[result.level] }}>{(result.confidence * 100).toFixed(1)}%</strong> confidence
-                          </span>
-                        </div>
-                      </div>
-                      <CheckCircle size={32} style={{ color: SEVERITY_COLORS[result.level], opacity: 0.7 }} />
-                    </div>
+            {/* Clinical Report */}
+            {result && (
+              <div className="report-card anim-fade" role="region" aria-label="Prediction Report" aria-live="polite">
 
-                    <p style={{ fontSize: '0.88rem', color: 'var(--color-text-muted)', lineHeight: 1.7, padding: '0.9rem', background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)', borderLeft: `3px solid ${SEVERITY_COLORS[result.level]}` }}>
-                      {result.warning_text}
+                {/* Report Header */}
+                <div className="report-header">
+                  <div>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
+                      Interaction Assessment Report
+                    </p>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-text)' }}>
+                      {result.drug_a} <span style={{ color: 'var(--color-text-subtle)', fontWeight: 400 }}>+</span> {result.drug_b}
                     </p>
                   </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p className="report-header-meta">
+                      <strong>Model:</strong> Random Forest v1.0
+                    </p>
+                    <p className="report-header-meta">
+                      <strong>Generated:</strong> {predTime?.toLocaleString() || '—'}
+                    </p>
+                  </div>
+                </div>
 
-                  {/* Charts + Properties */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    {/* Probability bar chart */}
-                    <div className="card">
-                      <p style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Probability Breakdown</p>
-                      <ResponsiveContainer width="100%" height={150}>
-                        <BarChart data={probData} layout="vertical" margin={{ left: 10 }}>
-                          <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} tickFormatter={v => v + '%'} />
-                          <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: 'var(--color-text)' }} width={70} />
-                          <Tooltip formatter={v => v + '%'} contentStyle={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', borderRadius: 8 }} />
-                          <Bar dataKey="value" radius={4}>
-                            {probData.map(entry => <Cell key={entry.name} fill={SEVERITY_COLORS[entry.name]} />)}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                {/* Severity */}
+                <div className={`report-section report-severity-${result.level.toLowerCase()}`}
+                  style={{ background: result.level === 'Major' ? 'var(--color-major-bg)' : result.level === 'Moderate' ? 'var(--color-moderate-bg)' : 'var(--color-minor-bg)' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: SEVERITY_COLORS[result.level], marginBottom: '0.5rem' }}>
+                        Interaction Risk Level
+                      </p>
+                      <SeverityBadge level={result.level} size="lg" showLabel />
                     </div>
-
-                    {/* Drug properties */}
-                    <div className="card">
-                      <p style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Molecular Properties</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        {result.drug_a_properties && <PropertiesTable drug={result.drug_a_properties} />}
-                        {result.drug_b_properties && <PropertiesTable drug={result.drug_b_properties} />}
-                      </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontSize: '0.75rem', color: SEVERITY_COLORS[result.level], fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.375rem' }}>
+                        Model Confidence
+                      </p>
+                      <p style={{ fontSize: '1.75rem', fontWeight: 800, color: SEVERITY_COLORS[result.level], fontFeatureSettings: '"tnum"', lineHeight: 1 }}>
+                        {(result.confidence * 100).toFixed(1)}%
+                      </p>
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+
+                {/* Clinical Recommendation */}
+                <div className="report-section">
+                  <p className="section-heading" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <Info size={13} aria-hidden="true" /> Clinical Recommendation
+                  </p>
+                  <div style={{
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderLeft: `3px solid ${SEVERITY_COLORS[result.level]}`,
+                    borderRadius: '0 var(--radius-md) var(--radius-md) 0',
+                    padding: '0.875rem 1rem',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.7,
+                    color: 'var(--color-text)',
+                  }}>
+                    {result.warning_text}
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.75rem', fontStyle: 'italic' }}>
+                    {RECOMMENDATIONS[result.level]}
+                  </p>
+                </div>
+
+                {/* Probability Breakdown */}
+                <div className="report-section">
+                  <p className="section-heading">Probability Distribution</p>
+                  <div>
+                    <ProbabilityRow label="Minor" value={result.probabilities?.Minor ?? 0} level="Minor" />
+                    <ProbabilityRow label="Moderate" value={result.probabilities?.Moderate ?? 0} level="Moderate" />
+                    <ProbabilityRow label="Major" value={result.probabilities?.Major ?? 0} level="Major" />
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)', marginTop: '0.75rem' }}>
+                    Probability estimates from Random Forest predict_proba(). Values sum to 100%.
+                  </p>
+                </div>
+
+                {/* Molecular Properties */}
+                {(result.drug_a_properties || result.drug_b_properties) && (
+                  <div className="report-section">
+                    <p className="section-heading">Molecular Properties</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                      {result.drug_a_properties && <PropertiesTable drug={result.drug_a_properties} />}
+                      {result.drug_b_properties && <PropertiesTable drug={result.drug_b_properties} />}
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer note */}
+                <div style={{ padding: '0.875rem 1.5rem', background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)', lineHeight: 1.65 }}>
+                    <strong>Note:</strong> This report is generated by a machine learning model and is intended for research purposes only.
+                    Clinical decisions must be validated by a qualified healthcare professional.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* History sidebar */}
-          <div className="card" style={{ position: 'sticky', top: 90 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <Clock size={16} style={{ color: 'var(--color-primary-light)' }} />
-              <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Recent Predictions</p>
+          {/* Right — Sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'sticky', top: 'calc(var(--nav-height) + 1.5rem)' }}>
+
+            {/* Instructions */}
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">How to Use</h3>
+              </div>
+              {[
+                'Select Drug A using the search field',
+                'Select Drug B (the interacting drug)',
+                'Click "Generate Interaction Report"',
+                'Review the structured clinical report',
+              ].map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                    background: 'var(--color-primary-bg)', border: '1px solid var(--color-primary-muted)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-primary)',
+                  }}>
+                    {i + 1}
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, paddingTop: '0.125rem' }}>{step}</p>
+                </div>
+              ))}
             </div>
-            {history.length === 0 ? (
-              <p style={{ fontSize: '0.82rem', color: 'var(--color-text-subtle)', textAlign: 'center', padding: '1.5rem 0' }}>No predictions yet.</p>
-            ) : (
-              history.map(item => <HistoryItem key={item.id} item={item} />)
-            )}
+
+            {/* Recent predictions */}
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Clock size={13} aria-hidden="true" /> Recent Predictions
+                </h3>
+              </div>
+              {history.length === 0 ? (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', textAlign: 'center', padding: '1.5rem 0' }}>
+                  No predictions yet.
+                </p>
+              ) : (
+                <div className="table-wrapper">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Drug Pair</th>
+                        <th>Level</th>
+                        <th>Conf.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map(item => <HistoryRow key={item.id} item={item} />)}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

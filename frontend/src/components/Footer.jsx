@@ -1,71 +1,83 @@
 import { Link } from 'react-router-dom'
-import { Activity, GitBranch, Heart } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
+import ddiLogo from '../assets/icon.png'
 
 export default function Footer() {
+  const year = new Date().getFullYear()
+
   return (
-    <footer style={{
-      background: 'var(--color-surface)',
-      borderTop: '1px solid var(--color-border)',
-      padding: '2.5rem 1.5rem',
-      marginTop: 'auto',
-    }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '2rem', marginBottom: '2rem' }}>
+    <footer className="footer" role="contentinfo">
+      <div className="container">
+
+        <div className="footer-grid">
           {/* Brand */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: 300 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <div style={{
-                width: 32, height: 32,
-                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                borderRadius: 8,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Activity size={16} color="white" />
-              </div>
-              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-                DDI<span style={{ color: '#a855f7' }}>Predict</span>
-              </span>
+          <div>
+            <div className="footer-brand-name">
+              <img src={ddiLogo} alt="" aria-hidden="true" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
+              DDIPredict Platform
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.7 }}>
-              AI-powered drug-drug interaction prediction using machine learning to improve patient safety.
+            <p className="footer-brand-desc">
+              A machine learning–based clinical decision support system for drug-drug interaction
+              severity prediction. Built on a Random Forest Classifier trained on 27,449 drug pairs
+              from the DDInter database.
             </p>
+            <span className="footer-version-badge">v1.0.0 — Research Release</span>
           </div>
 
-          {/* Links */}
-          <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
-            <div>
-              <p style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>App</p>
-              {[['/', 'Home'], ['/predict', 'Predictor'], ['/drugs', 'Drug Browser']].map(([to, label]) => (
-                <Link key={to} to={to} style={{ display: 'block', fontSize: '0.88rem', color: 'var(--color-text-muted)', marginBottom: '0.4rem', transition: 'color 0.15s' }}
-                  onMouseEnter={e => e.target.style.color = 'white'}
-                  onMouseLeave={e => e.target.style.color = 'var(--color-text-muted)'}
-                >{label}</Link>
-              ))}
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>Insights</p>
-              {[['/analytics', 'Analytics'], ['/about', 'About / Methodology']].map(([to, label]) => (
-                <Link key={to} to={to} style={{ display: 'block', fontSize: '0.88rem', color: 'var(--color-text-muted)', marginBottom: '0.4rem', transition: 'color 0.15s' }}
-                  onMouseEnter={e => e.target.style.color = 'white'}
-                  onMouseLeave={e => e.target.style.color = 'var(--color-text-muted)'}
-                >{label}</Link>
-              ))}
-            </div>
+          {/* Platform */}
+          <div className="footer-col">
+            <p className="footer-col-title">Platform</p>
+            <Link to="/">Dashboard</Link>
+            <Link to="/predict">Prediction Tool</Link>
+            <Link to="/drugs">Drug Database</Link>
+            <Link to="/analytics">Analytics</Link>
           </div>
+
+          {/* Resources */}
+          <div className="footer-col">
+            <p className="footer-col-title">Resources</p>
+            <Link to="/about">Documentation</Link>
+            <Link to="/about">Methodology</Link>
+            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">
+              API Reference <ExternalLink size={11} style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </a>
+            <a href="https://github.com/Santhoshjk159/DDI" target="_blank" rel="noopener noreferrer">
+              Source Code <ExternalLink size={11} style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </a>
+          </div>
+
+          {/* Dataset */}
+          <div className="footer-col">
+            <p className="footer-col-title">Data Sources</p>
+            <a href="https://ddinter.scbdd.com/" target="_blank" rel="noopener noreferrer">
+              DDInter Database <ExternalLink size={11} style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </a>
+            <a href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noopener noreferrer">
+              PubChem <ExternalLink size={11} style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </a>
+            <a href="https://go.drugbank.com/" target="_blank" rel="noopener noreferrer">
+              DrugBank <ExternalLink size={11} style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </a>
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="footer-disclaimer" role="note" aria-label="Medical disclaimer">
+          <strong>⚠ Medical Disclaimer:</strong> This tool is intended for research and educational purposes only.
+          Predictions are generated by a machine learning model based solely on molecular properties and should not
+          be used as a substitute for professional clinical judgment, consultation with a licensed pharmacist,
+          or approved medical references such as the BNF, Micromedex, or prescribing information sheets.
+          Always consult a qualified healthcare professional before making prescribing decisions.
         </div>
 
         {/* Bottom bar */}
-        <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-text-subtle)' }}>
-            © {new Date().getFullYear()} DDIPredict · Built with <Heart size={12} style={{ display: 'inline', color: '#ef4444' }} /> using FastAPI, React & scikit-learn
+        <div className="footer-bottom">
+          <p>© {year} DDIPredict Research Platform. All rights reserved.</p>
+          <p>
+            Powered by FastAPI · React · scikit-learn · PostgreSQL · Neon
           </p>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', transition: 'color 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'white' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
-          >
-          <GitBranch size={16} /> View on GitHub
-          </a>
         </div>
+
       </div>
     </footer>
   )

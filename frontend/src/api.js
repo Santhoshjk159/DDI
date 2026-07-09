@@ -10,7 +10,7 @@ const api = axios.create({
 export const predictInteraction = (drugA, drugB) =>
   api.post('/predict', { drug_a: drugA, drug_b: drugB }).then(r => r.data)
 
-export const searchDrugs = (q, limit = 10) =>
+export const searchDrugs = (q, limit = 15) =>
   api.get('/drugs/search', { params: { q, limit } }).then(r => r.data)
 
 export const listDrugs = (search = '', page = 1, pageSize = 20) =>

@@ -1,146 +1,345 @@
-import { motion } from 'framer-motion'
-import { GitBranch, Code2, Database, Cpu, Layers, FlaskConical, BookOpen, Microscope } from 'lucide-react'
+import {
+  FlaskConical, Database, Cpu, Layers,
+  FileText, Microscope, BookOpen, AlertTriangle,
+  CheckCircle2, ExternalLink, GitBranch
+} from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+const TOC = [
+  { id: 'overview',     label: 'Overview' },
+  { id: 'dataset',      label: 'Dataset' },
+  { id: 'features',     label: 'Feature Engineering' },
+  { id: 'methodology',  label: 'Methodology' },
+  { id: 'performance',  label: 'Model Performance' },
+  { id: 'limitations',  label: 'Limitations' },
+  { id: 'stack',        label: 'Technology Stack' },
+  { id: 'references',   label: 'References' },
+]
 
 const STACK = [
-  { icon: Code2,      label: 'React 18 + Vite',      desc: 'Modern SPA with fast HMR, Framer Motion animations, Recharts visualizations' },
-  { icon: Cpu,        label: 'FastAPI (Python)',       desc: 'Async REST API with auto-generated OpenAPI docs, CORS, and Pydantic validation' },
-  { icon: Database,   label: 'PostgreSQL',             desc: 'Relational database storing drugs, interactions, and prediction history via SQLAlchemy ORM' },
-  { icon: Layers,     label: 'scikit-learn',           desc: 'Random Forest Classifier with StandardScaler, 5-fold CV, and predict_proba confidence scores' },
+  { icon: Cpu,        label: 'FastAPI 0.111', role: 'Backend API', desc: 'Async Python web framework with auto-generated OpenAPI docs, Pydantic validation, and CORS middleware.' },
+  { icon: Database,   label: 'PostgreSQL 16', role: 'Database', desc: 'Relational database via SQLAlchemy async ORM (asyncpg). Stores drugs, interactions, and prediction logs.' },
+  { icon: Layers,     label: 'scikit-learn 1.4', role: 'ML Engine', desc: 'Random Forest Classifier with StandardScaler preprocessing, balanced class weights, and predict_proba confidence.' },
+  { icon: FlaskConical, label: 'React 19 + Vite', role: 'Frontend', desc: 'Single-page application with react-router-dom, Recharts for data visualization, and lucide-react icons.' },
 ]
 
 const FEATURES_EXPLAINED = [
-  { name: 'Molecular Weight', desc: 'The mass of a drug molecule in g/mol. Affects absorption, distribution, and metabolism (ADME properties).' },
-  { name: 'XLogP',            desc: 'Octanol-water partition coefficient. Measures lipophilicity — how well the drug permeates cell membranes.' },
-  { name: 'Exact Mass',       desc: 'The precise monoisotopic mass of the molecule. Used to identify the compound via mass spectrometry.' },
-  { name: 'TPSA',             desc: 'Topological Polar Surface Area in Å². Predicts drug transport, particularly across the blood-brain barrier.' },
+  { name: 'Molecular Weight (g/mol)', desc: 'The mass of a drug molecule. Directly affects absorption, distribution, metabolism, and excretion (ADME). Calculated from atomic masses.' },
+  { name: 'XLogP (Lipophilicity)', desc: 'Octanol-water partition coefficient. Quantifies lipophilicity — a key determinant of cell membrane permeability, bioavailability, and CNS penetration.' },
+  { name: 'Exact Mass (Da)', desc: 'Monoisotopic mass calculated from the most abundant isotopes of each element. Used in mass spectrometry-based identification and structural verification.' },
+  { name: 'TPSA (Å²)', desc: 'Topological Polar Surface Area. Predictive descriptor for drug transport, oral bioavailability, and blood-brain barrier permeability. Values >140 Å² indicate poor absorption.' },
 ]
 
-const TIMELINE = [
-  { step: '01', title: 'Data Collection',   desc: 'Sourced 27,449 drug pair interactions from DDInter database with severity labels.' },
-  { step: '02', title: 'Feature Engineering', desc: 'Merged molecular property data for each drug using PubChem identifiers.' },
-  { step: '03', title: 'Model Training',    desc: 'Trained Random Forest (200 estimators) with balanced class weights and StandardScaler.' },
-  { step: '04', title: 'API Development',   desc: 'Built FastAPI backend with async PostgreSQL, model serving, and full CRUD.' },
-  { step: '05', title: 'Frontend',          desc: 'Designed premium React UI with autocomplete, real-time predictions, and analytics.' },
-  { step: '06', title: 'Deployment',        desc: 'Containerized with Docker Compose. Deployable to Railway, Render, or AWS.' },
+const PERFORMANCE = [
+  { metric: 'Test Accuracy', value: '88.91%', note: '80/20 stratified split' },
+  { metric: 'Cross-Validation (5-fold)', value: '~88%', note: 'Mean ± standard deviation' },
+  { metric: 'Algorithm', value: 'Random Forest', note: '200 estimators' },
+  { metric: 'Class Balancing', value: 'class_weight="balanced"', note: 'Handles imbalanced classes' },
+  { metric: 'Preprocessing', value: 'StandardScaler', note: 'Z-score normalization' },
+  { metric: 'Features', value: '10 features', note: '4 per drug × 2 + 2 IDs' },
 ]
+
+const REFERENCES = [
+  { authors: 'Xiang Y, et al.', year: 2022, title: 'DDInter: an online drug–drug interaction database towards improving clinical decision-making and patient safety.', journal: 'Nucleic Acids Research', doi: 'https://doi.org/10.1093/nar/gkab880' },
+  { authors: 'Kim S, et al.', year: 2019, title: 'PubChem 2019 update: improved access/citation of chemical data.', journal: 'Nucleic Acids Research', doi: 'https://pubchem.ncbi.nlm.nih.gov/' },
+  { authors: 'Breiman L.', year: 2001, title: 'Random forests.', journal: 'Machine Learning', doi: 'https://doi.org/10.1023/A:1010933404324' },
+  { authors: 'Pedregosa F, et al.', year: 2011, title: 'Scikit-learn: Machine Learning in Python.', journal: 'Journal of Machine Learning Research', doi: 'https://jmlr.org/papers/v12/pedregosa11a.html' },
+]
+
+function SectionAnchor({ id }) {
+  return <span id={id} style={{ display: 'block', marginTop: '-80px', paddingTop: '80px' }} />
+}
 
 export default function About() {
   return (
-    <div style={{ paddingTop: 80 }}>
-      <div className="container" style={{ padding: '3rem 1.5rem', maxWidth: 900 }}>
-        {/* Hero */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '4rem' }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', marginBottom: '1rem', lineHeight: 1.2 }}>
-            About <span className="gradient-text">DDIPredict</span>
-          </h1>
-          <p style={{ fontSize: '1.05rem', color: 'var(--color-text-muted)', lineHeight: 1.8, maxWidth: 720 }}>
-            DDIPredict is a machine learning application that predicts the severity of drug-drug interactions (DDIs)
-            based on the molecular properties of two drugs. It was built to demonstrate the practical application of
-            ML in healthcare and serves as a portfolio project showcasing full-stack development with Python, React, and PostgreSQL.
-          </p>
-        </motion.div>
+    <div style={{ paddingTop: 'var(--nav-height)' }}>
 
-        {/* Tech Stack */}
-        <section style={{ marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Code2 size={22} style={{ color: 'var(--color-primary-light)' }} /> Tech Stack
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '1rem' }}>
-            {STACK.map(({ icon: Icon, label, desc }, i) => (
-              <motion.div key={label} className="card" style={{ display: 'flex', gap: '1rem' }}
-                initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} viewport={{ once: true }}
-              >
-                <div style={{ width: 42, height: 42, background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.1))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon size={20} style={{ color: 'var(--color-primary-light)' }} />
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.3rem' }}>{label}</p>
-                  <p style={{ fontSize: '0.83rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>{desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="page-header-inner">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
+            <Link to="/">Dashboard</Link>
+            <span className="breadcrumb-sep" aria-hidden="true">/</span>
+            <span>Documentation</span>
+          </nav>
+          <h1>Platform Documentation</h1>
+          <p>Technical reference for the DDIPredict drug-drug interaction prediction system.</p>
+        </div>
+      </div>
 
-        {/* Feature Explanations */}
-        <section style={{ marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Microscope size={22} style={{ color: 'var(--color-primary-light)' }} /> Molecular Features Explained
-          </h2>
-          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-            The model uses these 4 properties for each drug (8 features total) to predict interaction severity.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {FEATURES_EXPLAINED.map(({ name, desc }) => (
-              <div key={name} className="card" style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-                <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-primary-light)', minWidth: 140, paddingTop: '0.1rem' }}>{name}</span>
-                <p style={{ fontSize: '0.88rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+      <div className="container" style={{ padding: '0 2rem 4rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '3rem', alignItems: 'start' }}>
 
-        {/* Model Performance */}
-        <section style={{ marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <FlaskConical size={22} style={{ color: 'var(--color-primary-light)' }} /> Model Methodology
-          </h2>
-          <div className="card" style={{ background: 'var(--color-surface-2)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', fontSize: '0.9rem' }}>
-              <div>
-                <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Algorithm</p>
-                <p style={{ color: 'var(--color-text-muted)' }}>Random Forest Classifier with 200 decision trees, balanced class weights to handle class imbalance, and StandardScaler normalization.</p>
-              </div>
-              <div>
-                <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Validation</p>
-                <p style={{ color: 'var(--color-text-muted)' }}>5-fold Stratified Cross-Validation for robust accuracy estimation. 80/20 train-test split with stratification by severity class.</p>
-              </div>
-              <div>
-                <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Dataset</p>
-                <p style={{ color: 'var(--color-text-muted)' }}>27,449 drug pairs from the DDInter database. Classes: Minor (594), Moderate (8,088), Major (1,317) — inherently imbalanced.</p>
-              </div>
-              <div>
-                <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Limitations</p>
-                <p style={{ color: 'var(--color-text-muted)' }}>Predictions are based solely on molecular properties. Real clinical decisions require considering patient history, dosage, and comorbidities.</p>
-              </div>
+          {/* Sidebar TOC */}
+          <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.5rem)' }}>
+            <div className="card" style={{ padding: '1rem' }}>
+              <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '0.75rem', paddingLeft: '0.5rem' }}>
+                Contents
+              </p>
+              <nav aria-label="Table of contents">
+                {TOC.map(({ id, label }) => (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    style={{
+                      display: 'block', padding: '0.375rem 0.5rem',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.8125rem',
+                      color: 'var(--color-text-muted)',
+                      transition: 'all 150ms ease',
+                      textDecoration: 'none',
+                    }}
+                    onMouseEnter={e => { e.target.style.background = 'var(--color-primary-bg)'; e.target.style.color = 'var(--color-primary)' }}
+                    onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--color-text-muted)' }}
+                  >
+                    {label}
+                  </a>
+                ))}
+              </nav>
             </div>
-          </div>
-        </section>
+          </aside>
 
-        {/* Timeline */}
-        <section style={{ marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <BookOpen size={22} style={{ color: 'var(--color-primary-light)' }} /> Project Journey
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            {TIMELINE.map(({ step, title, desc }, i) => (
-              <motion.div key={step} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }} viewport={{ once: true }}
-                style={{ display: 'flex', gap: '1.25rem', paddingBottom: '1.5rem', position: 'relative' }}
+          {/* Main content */}
+          <main>
+
+            {/* Overview */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="overview" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <FileText size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>Overview</h2>
+              </div>
+              <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', lineHeight: 1.8, marginBottom: '1rem' }}>
+                DDIPredict is a machine learning–based clinical decision support system for predicting
+                the severity of drug-drug interactions (DDIs). Given two drug compounds, the system
+                analyzes their molecular descriptors using a trained Random Forest Classifier to
+                classify the interaction as <strong>Minor</strong>, <strong>Moderate</strong>, or <strong>Major</strong>.
+              </p>
+              <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', lineHeight: 1.8 }}>
+                The platform is intended as a research demonstration and educational tool. It should not be
+                used as a replacement for validated clinical drug reference systems such as Micromedex,
+                Lexicomp, or the British National Formulary (BNF).
+              </p>
+            </section>
+
+            <div className="divider" />
+
+            {/* Dataset */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="dataset" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <Database size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>Dataset</h2>
+              </div>
+              <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', lineHeight: 1.75, marginBottom: '1.25rem' }}>
+                The training data was sourced from the <strong>DDInter database</strong> (Xiang et al., 2022),
+                a curated repository of drug-drug interaction information.
+                Molecular descriptors were retrieved from the <strong>PubChem</strong> compound database.
+              </p>
+              <div className="card" style={{ background: 'var(--color-surface)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                  {[
+                    { label: 'Total Drug Pairs', value: '27,449' },
+                    { label: 'Minor Interactions', value: '594' },
+                    { label: 'Moderate Interactions', value: '8,088' },
+                    { label: 'Major Interactions', value: '1,317' },
+                    { label: 'Unique Compounds', value: '1,254' },
+                    { label: 'Molecular Features', value: '10 (4×2 + 2 IDs)' },
+                  ].map(({ label, value }) => (
+                    <div key={label}>
+                      <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>{label}</p>
+                      <p style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-text)', fontFeatureSettings: '"tnum"' }}>{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="alert alert-warning" style={{ marginTop: '1rem' }}>
+                <AlertTriangle size={16} style={{ flexShrink: 0 }} aria-hidden="true" />
+                <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: 'inherit' }}>
+                  <strong>Class Imbalance:</strong> The dataset is heavily skewed toward Moderate interactions (≈83% of pairs).
+                  Balanced class weights were applied during training to mitigate this imbalance.
+                </p>
+              </div>
+            </section>
+
+            <div className="divider" />
+
+            {/* Feature Engineering */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="features" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
+                <Microscope size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>Feature Engineering</h2>
+              </div>
+              <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem', lineHeight: 1.7 }}>
+                The model uses 4 molecular descriptors for each drug in the pair (8 features total),
+                plus 2 numerical drug identifiers, for a total of 10 input features.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {FEATURES_EXPLAINED.map(({ name, desc }) => (
+                  <div key={name} className="card" style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start', padding: '1rem 1.25rem' }}>
+                    <span style={{
+                      fontFamily: 'Courier New, monospace', fontWeight: 700, fontSize: '0.8125rem',
+                      color: 'var(--color-primary)', minWidth: 190, paddingTop: '0.1rem', flexShrink: 0,
+                    }}>
+                      {name}
+                    </span>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="divider" />
+
+            {/* Methodology */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="methodology" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <FlaskConical size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>Methodology</h2>
+              </div>
+              <div className="card" style={{ background: 'var(--color-surface)', marginBottom: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', fontSize: '0.9rem' }}>
+                  {[
+                    { title: 'Algorithm', body: 'Random Forest Classifier with 200 decision trees (n_estimators=200). Ensemble of decision trees with random feature subsets at each split.' },
+                    { title: 'Data Split', body: 'Stratified 80/20 train-test split ensuring proportional representation of all three severity classes in both partitions.' },
+                    { title: 'Cross-Validation', body: 'Stratified 5-fold cross-validation applied on the training set for robust accuracy estimation and hyperparameter validation.' },
+                    { title: 'Preprocessing', body: 'StandardScaler (z-score normalization) applied to all features before training and inference. Scaler is persisted alongside the model.' },
+                    { title: 'Class Weighting', body: 'class_weight="balanced" applied to penalize misclassification of minority classes (Minor, Major) proportional to their inverse frequency.' },
+                    { title: 'Inference', body: 'predict_proba() used to obtain probability estimates for all three classes. The argmax class is returned as the predicted severity level.' },
+                  ].map(({ title, body }) => (
+                    <div key={title}>
+                      <p style={{ fontWeight: 700, marginBottom: '0.375rem', fontSize: '0.875rem' }}>{title}</p>
+                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.65 }}>{body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <div className="divider" />
+
+            {/* Performance */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="performance" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <BookOpen size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>Model Performance</h2>
+              </div>
+              <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <table aria-label="Model performance metrics">
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Value</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PERFORMANCE.map(({ metric, value, note }) => (
+                      <tr key={metric}>
+                        <td style={{ fontWeight: 600 }}>{metric}</td>
+                        <td style={{ fontFamily: 'Courier New, monospace', fontWeight: 700, color: 'var(--color-primary)' }}>{value}</td>
+                        <td style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{note}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <div className="divider" />
+
+            {/* Limitations */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="limitations" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <AlertTriangle size={20} color="var(--color-moderate)" aria-hidden="true" />
+                <h2>Limitations</h2>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                {[
+                  'Predictions are based solely on molecular descriptors (MW, XLogP, TPSA, Exact Mass) — not on pharmacokinetic, pharmacodynamic, or patient-specific parameters.',
+                  'The model does not account for drug dosage, route of administration, patient comorbidities, organ function, or genetic variability (pharmacogenomics).',
+                  'The training dataset is imbalanced (Moderate class dominates). Despite class weighting, rare interaction types may be less reliably predicted.',
+                  'Drugs not present in the DDInter database cannot be evaluated. The system relies on stored molecular descriptors.',
+                  'Machine learning predictions are probabilistic and may produce incorrect classifications — clinical validation is always required.',
+                  'This system has not been clinically validated or regulatory approved (FDA, EMA, or equivalent). It is not a medical device.',
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.75rem 1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+                    <AlertTriangle size={14} color="var(--color-moderate)" style={{ flexShrink: 0, marginTop: '0.1rem' }} aria-hidden="true" />
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="divider" />
+
+            {/* Tech Stack */}
+            <section style={{ marginBottom: '3rem' }}>
+              <SectionAnchor id="stack" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <Cpu size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>Technology Stack</h2>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                {STACK.map(({ icon: Icon, label, role, desc }) => (
+                  <div key={label} className="card" style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--color-primary-bg)', border: '1px solid var(--color-primary-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Icon size={19} color="var(--color-primary)" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.125rem' }}>{label}</p>
+                      <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--color-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>{role}</p>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="divider" />
+
+            {/* References */}
+            <section style={{ marginBottom: '2rem' }}>
+              <SectionAnchor id="references" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                <BookOpen size={20} color="var(--color-primary)" aria-hidden="true" />
+                <h2>References</h2>
+              </div>
+              <ol style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {REFERENCES.map((ref, i) => (
+                  <li key={i} style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.7 }}>
+                    {ref.authors} ({ref.year}). <em>{ref.title}</em> <em style={{ fontStyle: 'italic', fontWeight: 600, color: 'var(--color-text)' }}>{ref.journal}.</em>{' '}
+                    <a href={ref.doi} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      DOI/Link <ExternalLink size={11} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            {/* Source code CTA */}
+            <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ marginBottom: '0.25rem' }}>View Source Code</h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+                  Full project available on GitHub — FastAPI backend, React frontend, ML training pipeline.
+                </p>
+              </div>
+              <a
+                href="https://github.com/Santhoshjk159/DDI"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline"
               >
-                {/* Line */}
-                {i < TIMELINE.length - 1 && <div style={{ position: 'absolute', left: 18, top: 40, bottom: 0, width: 2, background: 'var(--color-border)' }} />}
-                <div style={{ width: 36, height: 36, background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>
-                  {step}
-                </div>
-                <div style={{ paddingTop: '0.4rem' }}>
-                  <p style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.2rem' }}>{title}</p>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>{desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+                <GitBranch size={15} aria-hidden="true" /> View on GitHub
+              </a>
+            </div>
 
-        {/* GitHub CTA */}
-        <div className="card" style={{ textAlign: 'center', background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.08))', borderColor: 'rgba(124,58,237,0.25)' }}>
-          <GitBranch size={32} style={{ margin: '0 auto 0.75rem', color: 'var(--color-text-muted)' }} />
-          <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>View Source Code</h3>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-            The full project is open-source — FastAPI backend, React frontend, ML pipeline, and Docker setup.
-          </p>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-            <GitBranch size={16} /> View on GitHub
-          </a>
+          </main>
         </div>
       </div>
     </div>

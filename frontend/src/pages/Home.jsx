@@ -1,17 +1,62 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Activity, Zap, Database, BarChart2, ArrowRight, Shield, Brain, FlaskConical } from 'lucide-react'
+import {
+  Activity, FlaskConical, Database, BarChart3,
+  ShieldCheck, ArrowRight, FileText, Users
+} from 'lucide-react'
 import { getStats } from '../api'
 
 const FEATURES = [
-  { icon: Zap,          title: 'Instant Prediction',  desc: 'Get AI-powered DDI severity predictions in milliseconds using our trained Random Forest model.' },
-  { icon: Database,     title: '27K+ Drug Pairs',      desc: 'Backed by a dataset of 27,449 drug interactions covering Minor, Moderate, and Major severities.' },
-  { icon: BarChart2,    title: 'Full Analytics',       desc: 'Explore model performance, feature importances, and interaction distributions with rich visualizations.' },
-  { icon: Shield,       title: '88%+ Accuracy',        desc: 'Validated Random Forest Classifier with 5-fold cross-validation and ROC-AUC scoring.' },
-  { icon: Brain,        title: 'ML-Powered',           desc: 'Built on molecular properties: Molecular Weight, XLogP, Exact Mass, and TPSA for both drugs.' },
-  { icon: FlaskConical, title: 'Drug Browser',         desc: 'Search and explore our drug database with detailed molecular properties and known interactions.' },
+  {
+    icon: FlaskConical,
+    title: 'ML-Powered Severity Prediction',
+    desc: 'Predict Minor, Moderate, or Major drug-drug interaction severity using a trained Random Forest Classifier validated on 27,449 drug pairs.',
+  },
+  {
+    icon: Database,
+    title: 'Comprehensive Drug Database',
+    desc: 'Search and browse 1,254+ drugs with molecular descriptors: Molecular Weight, XLogP, Exact Mass, and Topological Polar Surface Area (TPSA).',
+  },
+  {
+    icon: BarChart3,
+    title: 'Model Analytics & Metrics',
+    desc: 'Examine model performance indicators including test accuracy, cross-validation scores, ROC-AUC, and feature importances derived from training data.',
+  },
+  {
+    icon: ShieldCheck,
+    title: '88.9% Test Accuracy',
+    desc: 'Validated using stratified 80/20 train-test split and 5-fold cross-validation. Balanced class weights applied to handle dataset imbalance.',
+  },
+  {
+    icon: FileText,
+    title: 'Clinical Decision Reports',
+    desc: 'Each prediction produces a structured clinical report with severity classification, confidence score, probability breakdown, and recommended action.',
+  },
+  {
+    icon: Activity,
+    title: 'Prediction History Tracking',
+    desc: 'All predictions are logged to a PostgreSQL database with timestamps, enabling audit trails and retrospective review of past queries.',
+  },
 ]
+
+function StatCard({ value, label, icon: Icon, color = 'var(--color-primary)' }) {
+  return (
+    <div className="metric-card">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <span className="metric-label">{label}</span>
+        <div style={{
+          width: 36, height: 36, borderRadius: 8,
+          background: 'var(--color-surface-2)',
+          border: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon size={17} color={color} aria-hidden="true" />
+        </div>
+      </div>
+      <div className="metric-value" style={{ color }}>{value}</div>
+    </div>
+  )
+}
 
 export default function Home() {
   const [stats, setStats] = useState(null)
@@ -20,123 +65,145 @@ export default function Home() {
     getStats().then(setStats).catch(() => {})
   }, [])
 
+  const accuracy = stats?.model?.accuracy
+    ? (stats.model.accuracy * 100).toFixed(1) + '%'
+    : '88.9%'
+
   return (
-    <div>
-      {/* Hero */}
+    <div style={{ paddingTop: 'var(--nav-height)' }}>
+
+      {/* Platform Banner */}
       <section style={{
-        minHeight: '100vh',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        textAlign: 'center', padding: '8rem 1.5rem 4rem',
-        position: 'relative', overflow: 'hidden',
+        background: 'var(--color-surface)',
+        borderBottom: '1px solid var(--color-border)',
+        padding: '3rem 0',
       }}>
-        {/* Background orbs */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
-          <div style={{ position: 'absolute', top: '15%', left: '10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-          <div style={{ position: 'absolute', bottom: '20%', right: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-        </div>
+        <div className="container">
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '2rem', flexWrap: 'wrap' }}>
+            <div style={{ maxWidth: 680 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <span className="badge badge-blue">
+                  <ShieldCheck size={11} />
+                  ML-Powered · Open Dataset
+                </span>
+                <span className="badge badge-neutral">Research Release v1.0</span>
+              </div>
+              <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.2 }}>
+                Drug-Drug Interaction Prediction System
+              </h1>
+              <p style={{ fontSize: '1rem', color: 'var(--color-text-muted)', lineHeight: 1.75, marginBottom: '1.5rem', maxWidth: 560 }}>
+                A clinical decision support platform that predicts the severity of drug-drug interactions (DDIs)
+                based on molecular properties using a trained Random Forest Classifier.
+                Interactions are classified as <strong>Minor</strong>, <strong>Moderate</strong>, or <strong>Major</strong>.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <Link to="/predict" className="btn btn-primary">
+                  <FlaskConical size={15} />
+                  Open Prediction Tool
+                  <ArrowRight size={14} />
+                </Link>
+                <Link to="/about" className="btn btn-secondary">
+                  <FileText size={15} />
+                  Read Documentation
+                </Link>
+              </div>
+            </div>
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="badge badge-minor" style={{ marginBottom: '1.5rem', fontSize: '0.75rem' }}>
-              <Activity size={12} /> ML-Powered · Open Source
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-            style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem' }}
-          >
-            Predict{' '}
-            <span className="gradient-text">Drug Interactions</span>{' '}
-            with AI
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
-            style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', color: 'var(--color-text-muted)', maxWidth: 560, margin: '0 auto 2.5rem', lineHeight: 1.7 }}
-          >
-            An intelligent system that identifies Minor, Moderate, and Major drug-drug interactions
-            based on molecular properties — helping clinicians make safer prescribing decisions.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
-            style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}
-          >
-            <Link to="/predict" className="btn btn-primary btn-lg">
-              Try the Predictor <ArrowRight size={18} />
-            </Link>
-            <Link to="/analytics" className="btn btn-secondary btn-lg">
-              View Analytics
-            </Link>
-          </motion.div>
-
-          {/* Stats strip */}
-          {stats && (
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-              style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '3rem' }}
-            >
-              <span className="stat-pill"><strong>{stats.drug_count?.toLocaleString()}</strong> Drugs</span>
-              <span className="stat-pill"><strong>{stats.interaction_count?.toLocaleString()}</strong> Interactions</span>
-              <span className="stat-pill"><strong>{stats.model?.accuracy ? (stats.model.accuracy * 100).toFixed(1) + '%' : '88.9%'}</strong> Accuracy</span>
-              <span className="stat-pill"><strong>{stats.prediction_count?.toLocaleString() || '0'}</strong> Predictions Made</span>
-            </motion.div>
-          )}
+            {/* Quick stats */}
+            <div style={{
+              background: 'var(--color-bg)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1.25rem 1.5rem',
+              minWidth: 260,
+              boxShadow: 'var(--shadow-sm)',
+            }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                Platform Statistics
+              </p>
+              {[
+                { label: 'Total Drugs', value: stats?.drug_count?.toLocaleString() || '—' },
+                { label: 'Interaction Pairs', value: stats?.interaction_count?.toLocaleString() || '—' },
+                { label: 'Model Accuracy', value: accuracy },
+                { label: 'Predictions Run', value: stats?.prediction_count?.toLocaleString() || '0' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{
+                  display: 'flex', justifyContent: 'space-between',
+                  padding: '0.5rem 0', borderBottom: '1px solid var(--color-border)',
+                  fontSize: '0.875rem',
+                }}>
+                  <span style={{ color: 'var(--color-text-muted)' }}>{label}</span>
+                  <strong style={{ color: 'var(--color-text)', fontFeatureSettings: '"tnum"' }}>{value}</strong>
+                </div>
+              ))}
+              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-subtle)', marginTop: '0.875rem' }}>
+                Data sourced from DDInter · PubChem
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Features */}
+      {/* KPI Row */}
+      {stats && (
+        <section style={{ padding: '2rem 0', background: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
+          <div className="container">
+            <div className="grid-4">
+              <StatCard icon={Database}    label="Total Drugs"        value={stats.drug_count?.toLocaleString() || '—'}             color="var(--color-primary)" />
+              <StatCard icon={Activity}    label="Known Interactions"  value={stats.interaction_count?.toLocaleString() || '—'}        color="var(--color-secondary)" />
+              <StatCard icon={ShieldCheck} label="Model Accuracy"      value={accuracy}                                               color="var(--color-minor)" />
+              <StatCard icon={Users}       label="Predictions Logged"  value={stats.prediction_count?.toLocaleString() || '0'}         color="var(--color-moderate)" />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Capabilities */}
       <section className="section" style={{ background: 'var(--color-surface)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', marginBottom: '0.75rem' }}>
-              Everything you need to explore DDIs
-            </h2>
-            <p style={{ color: 'var(--color-text-muted)', maxWidth: 500, margin: '0 auto' }}>
-              A full research toolkit built with modern ML and web technologies.
+          <div style={{ marginBottom: '2rem' }}>
+            <h2 style={{ marginBottom: '0.375rem' }}>Platform Capabilities</h2>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>
+              An integrated research toolkit for drug interaction analysis.
             </p>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
-              <motion.div
-                key={title}
-                className="card"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
+            {FEATURES.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{
-                  width: 44, height: 44, borderRadius: 12, marginBottom: '1rem',
-                  background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.1))',
+                  width: 40, height: 40,
+                  borderRadius: 8,
+                  background: 'var(--color-primary-bg)',
+                  border: '1px solid var(--color-primary-muted)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Icon size={22} style={{ color: 'var(--color-primary-light)' }} />
+                  <Icon size={19} color="var(--color-primary)" aria-hidden="true" />
                 </div>
-                <h3 style={{ fontSize: '1.05rem', marginBottom: '0.5rem' }}>{title}</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{desc}</p>
-              </motion.div>
+                <div>
+                  <h3 style={{ fontSize: '0.9375rem', marginBottom: '0.375rem' }}>{title}</h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Banner */}
-      <section style={{ padding: '5rem 1.5rem', textAlign: 'center' }}>
-        <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.2rem)', marginBottom: '1rem' }}>
-            Ready to check a drug pair?
-          </h2>
-          <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>
-            Enter two drug names and get an instant AI-powered interaction severity prediction.
-          </p>
-          <Link to="/predict" className="btn btn-primary btn-lg" style={{ animation: 'pulse-glow 2.5s ease-in-out infinite' }}>
-            Launch Predictor <ArrowRight size={18} />
-          </Link>
+      {/* Notice */}
+      <section style={{ padding: '2.5rem 0', background: 'var(--color-bg)', borderTop: '1px solid var(--color-border)' }}>
+        <div className="container">
+          <div className="alert alert-warning" role="note">
+            <ShieldCheck size={18} style={{ flexShrink: 0 }} aria-hidden="true" />
+            <p style={{ fontSize: '0.875rem', lineHeight: 1.65, color: 'inherit' }}>
+              <strong>Research Use Only:</strong> This platform is intended for educational and research purposes.
+              It should not be used as a substitute for professional clinical advice, pharmacist consultation,
+              or established drug reference resources. Predictions are probabilistic and based solely on molecular
+              descriptors — not on patient-specific pharmacokinetic data.
+            </p>
+          </div>
         </div>
       </section>
+
     </div>
   )
 }

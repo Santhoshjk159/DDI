@@ -17,13 +17,15 @@ class Drug(Base):
     # Relationships
     interactions_as_a = relationship(
         "Interaction",
-        foreign_keys="Interaction.drug_a_id",
+        primaryjoin="Drug.drug_id == Interaction.drug_a_id",
+        foreign_keys="[Interaction.drug_a_id]",
         back_populates="drug_a",
         lazy="select",
     )
     interactions_as_b = relationship(
         "Interaction",
-        foreign_keys="Interaction.drug_b_id",
+        primaryjoin="Drug.drug_id == Interaction.drug_b_id",
+        foreign_keys="[Interaction.drug_b_id]",
         back_populates="drug_b",
         lazy="select",
     )
