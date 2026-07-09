@@ -11,7 +11,7 @@ import pandas as pd
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import select, text
 from app.config import get_settings
-from app.database import Base
+from app.database import Base, create_db_engine
 from app.models.drug import Drug, Interaction
 from app.models.prediction import PredictionLog  # noqa: F401
 
@@ -23,7 +23,7 @@ async def seed():
     print("DDI Database Seeder")
     print("=" * 60)
 
-    engine = create_async_engine(settings.database_url, echo=False)
+    engine = create_db_engine(settings.database_url, echo=False)
     SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     # Create tables
