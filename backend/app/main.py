@@ -48,6 +48,16 @@ app.add_middleware(
 app.include_router(api_router)
 
 
+@app.get("/", tags=["Health"])
+async def root():
+    return {
+        "status": "ok",
+        "message": "DDI Predict API is running",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 @app.get("/health", tags=["Health"])
 async def health():
     return {
