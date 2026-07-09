@@ -30,6 +30,10 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.cors_origins.split(",")]
 
     @property
+    def cors_origin_regex(self) -> str:
+        return r"^https://.*\.vercel\.app$|^http://localhost:\d+$|^http://127\.0\.0\.1:\d+$"
+
+    @property
     def is_production(self) -> bool:
         return self.app_env == "production"
 
