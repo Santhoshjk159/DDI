@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_, func
+from sqlalchemy import select, or_, func, text
 from app.database import get_db
 from app.models.drug import Drug, Interaction
 from app.schemas.drug import DrugListResponse, DrugSearchResult, DrugDetailResponse, InteractionResponse
@@ -43,10 +43,11 @@ async def list_drugs(
 @router.get("/search", response_model=list[DrugSearchResult])
 async def search_drugs(
     q: str = Query(min_length=1),
-    limit: int = Query(default=10, le=20),
+    limit: int = Query(default=15, le=30),
     db: AsyncSession = Depends(get_db),
 ):
-    """Autocomplete search for drug names."""
+    """Autocomplete search for drug names. Falls back to fuzzy matching for typos."""
+    # 1) First try exact substring match (fast)
     result = await db.execute(
         select(Drug)
         .where(Drug.name.ilike(f"%{q}%"))
@@ -54,6 +55,25 @@ async def search_drugs(
         .limit(limit)
     )
     drugs = result.scalars().all()
+
+    # 2) If no results, try trigram similarity for typo tolerance
+    if not drugs and len(q) >= 3:
+        try:
+            result = await db.execute(
+                text(
+                    "SELECT *, similarity(name, :q) AS sim "
+                    "FROM drugs "
+                    "WHERE similarity(name, :q) > 0.15 "
+                    "ORDER BY sim DESC "
+                    "LIMIT :lim"
+                ).bindparams(q=q, lim=limit)
+            )
+            rows = result.mappings().all()
+            return [DrugSearchResult.model_validate(dict(r)) for r in rows]
+        except Exception:
+            # pg_trgm not available — return empty
+            pass
+
     return [DrugSearchResult.model_validate(d) for d in drugs]
 
 

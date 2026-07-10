@@ -27,9 +27,11 @@ export default function Navbar() {
             alt="DDI Prediction Platform Logo"
             aria-hidden="true"
             style={{
-              width: 42,
-              height: 42,
+              width: 50,
+              height: 50,
               objectFit: 'contain',
+              transform: 'scale(1.15)',
+              transformOrigin: 'center',
               flexShrink: 0,
             }}
           />

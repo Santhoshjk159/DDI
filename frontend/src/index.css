@@ -908,11 +908,104 @@ tbody td {
 
 .anim-fade { animation: fadeIn 0.2s ease forwards; }
 
+.table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ─── Home Banner ────────────────────────────────────────── */
+.home-banner-section {
+  background-color: var(--color-surface);
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 4rem 0;
+  position: relative;
+}
+
+.home-banner {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 3rem;
+  align-items: center;
+}
+
+.home-banner-text h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.home-banner-text p {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 540px;
+}
+
+.home-stats-panel {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  position: relative;
+  z-index: 2;
+}
+
+.home-stats-panel .stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+}
+
+.home-stats-panel .stat-row:last-of-type {
+  border-bottom: none;
+}
+
+
+/* ─── Layouts & Components ───────────────────────────────── */
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+.mobile-menu-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--color-text); padding: 0.5rem;
+  display: none; align-items: center; justify-content: center;
+}
+
+.mobile-dropdown {
+  position: absolute; top: var(--nav-height); left: 0; right: 0;
+  background: var(--color-surface); padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; flex-direction: column; gap: 0.5rem;
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.page-content { padding: 0 2rem 3rem; }
+.page-content-lg { padding: 0 2rem 4rem; }
 
 /* ─── Responsive ─────────────────────────────────────────── */
+.chart-grid-1 { display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+.chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.about-layout { display: grid; grid-template-columns: 220px 1fr; gap: 3rem; align-items: start; }
+.about-toc { position: sticky; top: calc(var(--nav-height) + 1.5rem); }
+.predict-layout { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start; }
+.predict-sidebar { display: flex; flex-direction: column; gap: 1.25rem; position: sticky; top: calc(var(--nav-height) + 1.5rem); }
+.mol-props-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
 @media (max-width: 1024px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .chart-grid-1, .chart-grid-2 { grid-template-columns: 1fr; }
+  .predict-layout { grid-template-columns: 1fr; }
+  .predict-sidebar { position: static; }
+  .mol-props-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
@@ -921,11 +1014,16 @@ tbody td {
   .hide-mobile { display: none !important; }
   .show-mobile { display: flex !important; }
   .mobile-menu-btn { display: flex; }
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4, .feature-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
   h1 { font-size: 1.5rem; }
   h2 { font-size: 1.25rem; }
   .page-header h1 { font-size: 1.375rem; }
+  .page-content, .page-content-lg { padding: 0 1rem 2rem; }
+  .about-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+  .about-toc { display: none; }
+  .home-banner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .home-banner-section { padding: 2.5rem 0; }
 }
 
 @media (min-width: 769px) {

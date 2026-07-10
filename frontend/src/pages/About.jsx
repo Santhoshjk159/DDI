@@ -67,11 +67,11 @@ export default function About() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '0 2rem 4rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '3rem', alignItems: 'start' }}>
+      <div className="container page-content-lg">
+        <div className="about-layout">
 
           {/* Sidebar TOC */}
-          <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.5rem)' }}>
+          <aside className="about-toc">
             <div className="card" style={{ padding: '1rem' }}>
               <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '0.75rem', paddingLeft: '0.5rem' }}>
                 Contents
@@ -137,7 +137,7 @@ export default function About() {
                 Molecular descriptors were retrieved from the <strong>PubChem</strong> compound database.
               </p>
               <div className="card" style={{ background: 'var(--color-surface)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                <div className="grid-3">
                   {[
                     { label: 'Total Drug Pairs', value: '27,449' },
                     { label: 'Minor Interactions', value: '594' },

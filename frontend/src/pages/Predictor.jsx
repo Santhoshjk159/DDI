@@ -137,12 +137,12 @@ export default function Predictor() {
             <span>Prediction Tool</span>
           </nav>
           <h1>Drug-Drug Interaction Predictor</h1>
-          <p>Select two drugs to generate an ML-based interaction severity assessment.</p>
+          <p>Select two compounds to generate an interaction severity assessment.</p>
         </div>
       </div>
 
-      <div className="container" style={{ padding: '0 2rem 3rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem', alignItems: 'start' }}>
+      <div className="container page-content">
+        <div className="predict-layout">
 
           {/* Left — Main panel */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -151,9 +151,6 @@ export default function Predictor() {
             <div className="card">
               <div className="card-header" style={{ marginBottom: '1.25rem' }}>
                 <h2 style={{ fontSize: '0.9375rem', fontWeight: 700 }}>Drug Selection</h2>
-                <span className="tag">
-                  <FlaskConical size={10} aria-hidden="true" /> Step 1 of 2
-                </span>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -304,7 +301,7 @@ export default function Predictor() {
                 {(result.drug_a_properties || result.drug_b_properties) && (
                   <div className="report-section">
                     <p className="section-heading">Molecular Properties</p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div className="mol-props-grid">
                       {result.drug_a_properties && <PropertiesTable drug={result.drug_a_properties} />}
                       {result.drug_b_properties && <PropertiesTable drug={result.drug_b_properties} />}
                     </div>
@@ -323,7 +320,7 @@ export default function Predictor() {
           </div>
 
           {/* Right — Sidebar */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'sticky', top: 'calc(var(--nav-height) + 1.5rem)' }}>
+          <div className="predict-sidebar">
 
             {/* Instructions */}
             <div className="card">

@@ -188,7 +188,7 @@ export default function DrugBrowser() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '0 2rem 3rem' }}>
+      <div className="container page-content">
 
         {/* Search & filters bar */}
         <div style={{

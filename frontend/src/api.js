@@ -7,9 +7,11 @@ const normalizeApiBaseUrl = (url) => {
   return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`
 }
 
+const RAW_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '')
+
 const api = axios.create({
-  baseURL: normalizeApiBaseUrl(import.meta.env.VITE_API_URL || 'http://localhost:8000'),
-  timeout: 20000,
+  baseURL: normalizeApiBaseUrl(RAW_BASE),
+  timeout: 30000,
 })
 
 export const predictInteraction = (drugA, drugB) =>
@@ -29,5 +31,27 @@ export const getHistory = (limit = 20) =>
 
 export const getStats = () =>
   api.get('/stats').then(r => r.data)
+
+/**
+ * Warm up the backend (Render free-tier cold start).
+ * Pings /health every 3s, up to 20 attempts (~60s max).
+ * Returns true if backend is awake, false if all retries exhausted.
+ */
+export const warmUpBackend = async () => {
+  const healthUrl = RAW_BASE.endsWith('/api')
+    ? RAW_BASE.replace(/\/api$/, '/health')
+    : `${RAW_BASE}/health`
+
+  for (let i = 0; i < 20; i++) {
+    try {
+      const res = await axios.get(healthUrl, { timeout: 5000 })
+      if (res.data?.status === 'ok') return true
+    } catch {
+      // Backend still waking up
+    }
+    if (i < 19) await new Promise(r => setTimeout(r, 3000))
+  }
+  return false
+}
 
 export default api

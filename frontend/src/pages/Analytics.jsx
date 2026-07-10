@@ -175,7 +175,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '0 2rem 3rem' }}>
+      <div className="container page-content">
 
         {/* KPI Row */}
         <div className="grid-4" style={{ marginBottom: '2rem' }}>
@@ -248,7 +248,7 @@ export default function Analytics() {
         )}
 
         {/* Charts row 1 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="chart-grid-1">
 
           {/* Severity Distribution */}
           <div className="card">
@@ -315,7 +315,7 @@ export default function Analytics() {
         </div>
 
         {/* Charts row 2 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="chart-grid-2">
 
           {/* Top drugs */}
           <div className="card">

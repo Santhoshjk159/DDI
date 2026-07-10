@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import text
 from app.config import get_settings
 
 settings = get_settings()
@@ -75,4 +76,9 @@ async def get_db():
 async def init_db():
     from app.models import drug, prediction  # noqa: F401
     async with engine.begin() as conn:
+        # Enable trigram extension for fuzzy search (safe if already exists)
+        try:
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm"))
+        except Exception:
+            pass  # Extension may not be available on all PostgreSQL setups
         await conn.run_sync(Base.metadata.create_all)
